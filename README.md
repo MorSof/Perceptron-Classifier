@@ -26,6 +26,11 @@ summerize, recieve and send - He needs to be the "quick manager".
 #Cuda Usage:
 
 Will calculate and set the new points coordinates according to the local time the slave is handle.
+what is a rational of choosing the specific architecture - 
+The big advantage of Cuda is that it can handle massive amount of small tasks on parallel, 
+In this case, it handle massive amount of points which need to be relcataed - its a perfect match!
+complexity evaluation - 
+Each Cuda thread loop throgh single point demension - O(k) in parallel - O(k) total.
 
 
 #OMP usage:
