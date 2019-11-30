@@ -6,23 +6,14 @@
 #include "device_launch_parameters.h"
 
 cudaError_t allocateCudaMemory(Points* points, int N, int K, Points* dev_points, double** dev_weights, int** dev_results);
-
 cudaError_t calcCoordsWithCuda(Points* points, int N, int K, double* weights, double a, int LIMIT, double t, double proc_dt, int* results, int* Nmiss, Points* dev_points, double* dev_weights, int* dev_results, int* numOfBlocks, int* numOfThreadsPerBlock, int myId);
-
-void checkError(cudaError_t cudaStatus, void* parameter, const char* errorMessage);
-
-void freeCudaMemory(Points* dev_points, double* dev_weights, int* dev_results);
-
 __global__ void updatePointsCoordinantes(double* dev_coords, double* dev_velocity, int N, int K, double t, double proc_dt);
-
 int checkAllPointsLimitTimesCuda(Points* points, int N, int K, double* dev_coords, int* dev_group, double* dev_weights, double* weights, double a, int LIMIT, int* results, int* dev_results, int numOfBlocks, int numOfThreadsPerBlock, int myId);
-
 int checkAllPointsLimitTimesOMP(Points* points, int N, int K, double* weights, double a, int LIMIT, int* results, int myId);
-
 __global__ void checkAllPointsOneIteration(int N, int K, double* dev_coords, int* dev_group, double* dev_weights, double a, int* dev_results, int myId);
-
 __device__ int calculateWeightFuncCuda(double* dev_coords, double* dev_weights, int K, int id);
-
+void checkError(cudaError_t cudaStatus, void* parameter, const char* errorMessage);
+void freeCudaMemory(Points* dev_points, double* dev_weights, int* dev_results);
 int countNmiss(int* results, int N, int* minIndex);
 
 //Move points to their new dt coordinantes
@@ -48,7 +39,7 @@ cudaError_t calcCoordsWithCuda(Points* points, int N, int K, double* weights, do
 	return cudaStatus;
 }
 
-
+//Each Cuda thread move a single point to a new location
 __global__ void updatePointsCoordinantes(double* dev_coords, double* dev_velocity, int N, int K, double t, double proc_dt)
 {
 	int i, id = blockDim.x * blockIdx.x + threadIdx.x;

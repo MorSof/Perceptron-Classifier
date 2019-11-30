@@ -36,15 +36,6 @@ int main(int argc, char *argv[])
 	double* weights;
 	int numOfJobs, numOfWorkingProccesses, numOfWorkingSlaves;
 
-	//-----------------------------------------------------------------------------------------------
-	/*if (myId == MASTER)
-	{
-	Point* pointArrTest = createPointArr(N, K);
-	writePointsToFileTest(INPUT_FILE_NAME, N, K, dt, tmax, a, LIMIT, QC, pointArrTest);
-
-	}*/
-	//-----------------------------------------------------------------------------------------------
-
 	Points points;
 	FILE* fp;
 	clock_t c = clock();
@@ -226,7 +217,7 @@ int binaryClassificationAlgorithm(int N, int K, Points* points, double* weights,
 	//Nmiss = checkAllPointsLimitTimesCuda(points, N, K, dev_Points, weights, a, LIMIT, localResults, dev_results, numOfBlocks, numOfThreadsPerBlock, myId);
 	Nmiss = checkAllPointsLimitTimesOMP(points, N, K, weights, a, LIMIT, localResults, myId);//Checking all points LIMIT times and return the last iteration Nmiss
 
-																							 //-----------------------------------------------------------------------------------------------------------------------------------------
+	//-----------------------------------------------------------------------------------------------------------------------------------------
 	*q = checkQualityOfClassifier(Nmiss, N); //Calculate Ratio (Nmiss/N)
 	if (*q < QC)
 	{	//Good quality solution
@@ -363,49 +354,6 @@ void writeResultToFile(const char* fileName, double* weights, int K, double t, d
 	fclose(fp);
 }
 
-void writePointsToFileTest(const char* fileName, int N, int K, double dt, double tmax, double a, int LIMIT, double QC, Point* pointsArr)
-{
-	int i;
-	FILE *fp;
-	fp = fopen(fileName, "wt");
-	if (!fp)
-	{
-		printf("Cannot Open File '%s'", fileName);
-		return;
-	}
-
-	fprintf(fp, "%d\t", N);
-	fprintf(fp, "%d\t", K);
-	fprintf(fp, "%lf\t", dt);
-	fprintf(fp, "%lf\t", tmax);
-	fprintf(fp, "%lf\t", a);
-	fprintf(fp, "%d\t", LIMIT);
-	fprintf(fp, "%lf\n", QC);
-
-	for (i = 0; i < N; i++)
-	{
-		writeOnePointToFile(fp, &(pointsArr[i]), K);
-	}
-
-	fclose(fp);
-
-}
-
-void writeOnePointToFile(FILE* fp, Point* pPoint, int K)
-{
-	int i;
-	for (i = 0; i < K; i++)
-	{
-		fprintf(fp, "%lf\t", pPoint->coordinantes[i]);
-	}
-	for (i = 0; i < K; i++)
-	{
-		fprintf(fp, "%lf\t", pPoint->velocity[i]);
-	}
-
-	fprintf(fp, " %d\n", pPoint->group);
-}
-
 void initWeights(double* weights, int K)
 {
 	int i;
@@ -432,89 +380,7 @@ void freeCpuMemory(Points* points, double* weights)
 
 }
 
-void printWeights(double* weights, int K, int myId)
-{
-	int i;
-
-	printf("------The weights:   Id %d--------\n", myId);
-	for (i = 0; i < K + 1; i++)
-	{
-		printf("%lf\n", weights[i]);
-		fflush(NULL);
-	}
-}
-
-
-Point* createPointArr(int N, int K)
-{
-
-	int i;
-	Point* pointsArr = (Point*)malloc(N * sizeof(Point));
-	for (i = 0; i < N; i++)
-	{
-		pointsArr[i] = createOnePoint(K);
-	}
-
-	return pointsArr;
-}
-
-Point createOnePoint(int K)
-{
-	int lower = -10;
-	int upper = 10;
-	int i;
-	Point point;
-	point.coordinantes = (double*)malloc(K * sizeof(double));
-	point.velocity = (double*)malloc(K * sizeof(double));
-
-
-	for (i = 0; i < K; i++)
-	{
-		point.coordinantes[i] = (rand() % (upper - lower + 1)) + lower;
-	}
-	for (i = 0; i < K; i++)
-	{
-		point.velocity[i] = (rand() % (upper - lower + 1)) + lower;
-	}
-
-	upper = 1;
-	lower = -1;
-	do {
-		point.group = (rand() % (upper - lower + 1)) + lower;
-	} while (point.group == 0);
-
-	return point;
-}
-
-void printOnePoint(Points* points, int i, int K)
-{
-	int j;
-
-	for (j = 0; j < K; j++)
-	{
-		printf("%lf\t", points->coordinantes[i*K + j]);
-	}
-	for (j = 0; j < K; j++)
-	{
-		printf("%lf\t", points->velocity[i*K + j]);
-	}
-
-	printf("%d ", points->group[i]);
-}
-
-void printPointArr(Points* points, int N, int K, int myId)
-{
-	int i;
-	printf("\n-----------Points Array id %d-------------\n", myId);
-	for (i = 0; i < N; i++) {
-		printf("Point Index %d:\t", i);
-		printOnePoint(points, i, K);
-		printf("\n");
-	}
-	printf("------------------------------------\n");
-}
-
-void dismissUnemployedprocesses(int myCurrentJobIndex, int numOfJobs, int myId)
+void dismissUnemployedProcesses(int myCurrentJobIndex, int numOfJobs, int myId)
 {
 	if (myCurrentJobIndex >= numOfJobs)
 	{// will dismiss all the slaves that dont have a job
@@ -525,17 +391,6 @@ void dismissUnemployedprocesses(int myCurrentJobIndex, int numOfJobs, int myId)
 	}
 }
 
-void printQarray(double* qArray, int numOfWorkingSlaves)
-{
-	int i;
-	printf("qArray: (numOfWorkingSlaves = %d)\n", numOfWorkingSlaves);
-	for (i = 0; i < numOfWorkingSlaves; i++)
-	{
-		printf("%lf\t", qArray[i]);
-		fflush(NULL);
-	}
-	printf("\n");
-}
 
 void sendMessageToAllSlaves(int numOfWorkingSlaves, int message, int tag)
 {	//send a massege to all relevant slaves
