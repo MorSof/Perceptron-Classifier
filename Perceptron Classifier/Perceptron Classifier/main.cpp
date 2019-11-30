@@ -4,7 +4,6 @@
 #include <mpi.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <time.h>
 #include "main.h"
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
@@ -23,8 +22,6 @@ int main(int argc, char *argv[])
 	MPI_Comm_size(MPI_COMM_WORLD, &numOfProcess);
 	int numOfSlaves = numOfProcess - 1;
 
-
-	srand(time(0));
 	int N = 500000;
 	int K = 2;
 	double dt = 1;
@@ -38,7 +35,9 @@ int main(int argc, char *argv[])
 
 	Points points;
 	FILE* fp;
-	clock_t c = clock();
+
+	double start = MPI_Wtime();
+
 	if (myId == MASTER)
 	{	//Only the Master reads parameters from file
 		fp = readParamsFromFile(INPUT_FILE_NAME, &N, &K, &dt, &tmax, &a, &LIMIT, &QC, myId);
@@ -59,11 +58,11 @@ int main(int argc, char *argv[])
 
 	if (myId == MASTER && numOfProcess > 1) // Slavse doing the algorithem, master will only be the manager
 	{
-		masterHandleSlaves(N, K, dt, tmax, a, LIMIT, QC, t, weights, numOfJobs, numOfSlaves, numOfWorkingProccesses, numOfWorkingSlaves, c);
+		masterHandleSlaves(N, K, dt, tmax, a, LIMIT, QC, t, weights, numOfJobs, numOfSlaves, numOfWorkingProccesses, numOfWorkingSlaves, start);
 	}
 	else if (myId == MASTER && numOfProcess == 1) //if there are no slaves, only the master perform the algorithem
 	{
-		masterAlone(points, N, K, dt, tmax, a, LIMIT, QC, t, weights, numOfJobs, numOfSlaves, numOfWorkingProccesses, numOfWorkingSlaves, c, myId);
+		masterAlone(points, N, K, dt, tmax, a, LIMIT, QC, t, weights, numOfJobs, numOfSlaves, numOfWorkingProccesses, numOfWorkingSlaves, start, myId);
 	}
 	else //Slavse doing the algorithem
 	{
@@ -75,7 +74,7 @@ int main(int argc, char *argv[])
 	return EXIT_SUCCESS;
 }
 
-void masterHandleSlaves(int N, int K, double dt, double tmax, double a, int LIMIT, double QC, double t, double* weights, int numOfJobs, int numOfSlaves, int numOfWorkingProccesses, int numOfWorkingSlaves, clock_t c)
+void masterHandleSlaves(int N, int K, double dt, double tmax, double a, int LIMIT, double QC, double t, double* weights, int numOfJobs, int numOfSlaves, int numOfWorkingProccesses, int numOfWorkingSlaves, double start)
 {
 	MPI_Status status;
 	double* qArray = NULL;
@@ -117,13 +116,12 @@ void masterHandleSlaves(int N, int K, double dt, double tmax, double a, int LIMI
 	}
 
 	free(qArray);
-	c = clock() - c;
-	double time_taken = ((double)c) / CLOCKS_PER_SEC; // calculate the elapsed time
-	printf("\nThe program took %f seconds to execute\n", time_taken);
+	double end = MPI_Wtime();
+	printf("\nThe program took %lf seconds to execute\n", end - start);
 
 }
 
-void masterAlone(Points points, int N, int K, double dt, double tmax, double a, int LIMIT, double QC, double t, double* weights, int numOfJobs, int numOfSlaves, int numOfWorkingProccesses, int numOfWorkingSlaves, clock_t c, int myId)
+void masterAlone(Points points, int N, int K, double dt, double tmax, double a, int LIMIT, double QC, double t, double* weights, int numOfJobs, int numOfSlaves, int numOfWorkingProccesses, int numOfWorkingSlaves, double start, int myId)
 {//Master is alone without slaves
 	Points dev_points;
 	int result;
@@ -157,9 +155,8 @@ void masterAlone(Points points, int N, int K, double dt, double tmax, double a, 
 
 	freeCudaMemory(&dev_points, dev_weights, dev_results);
 	free(results);
-	c = clock() - c;
-	double time_taken = ((double)c) / CLOCKS_PER_SEC; // calculate the elapsed time
-	printf("\nThe program took %f seconds to execute\n", time_taken);
+	double end = MPI_Wtime();
+	printf("\nThe program took %lf seconds to execute\n", end - start);
 }
 
 void slavesWork(Points points, int N, int K, double dt, double tmax, double a, int LIMIT, double QC, double t, double* weights, int numOfJobs, int numOfSlaves, int numOfWorkingProccesses, int numOfWorkingSlaves, int myId)
@@ -175,7 +172,7 @@ void slavesWork(Points points, int N, int K, double dt, double tmax, double a, i
 	int *dev_results = 0;
 	double* dev_weights = 0;
 
-	dismissUnemployedprocesses(myCurrentJobIndex, numOfJobs, myId);//if there are more slaves then jobs, the unimployment slaves will be dismissed
+	dismissUnemployedProcesses(myCurrentJobIndex, numOfJobs, myId);//if there are more slaves then jobs, the unimployment slaves will be dismissed
 	allocateCudaMemory(&points, N, K, &dev_points, &dev_weights, &dev_results); // Allocate cuda memory
 	localResults = (int*)malloc(sizeof(int)*N); // array which include all the local time results
 	do
@@ -198,7 +195,7 @@ void slavesWork(Points points, int N, int K, double dt, double tmax, double a, i
 		else
 		{	//If there is no Global Success or Global Faild we want to continiue to the next job
 			myCurrentJobIndex += numOfWorkingSlaves; //Increas his job index by the actuall number of working slaves
-			dismissUnemployedprocesses(myCurrentJobIndex, numOfJobs, myId);//if there are more slaves then jobs, the unimployment slaves will be dismissed
+			dismissUnemployedProcesses(myCurrentJobIndex, numOfJobs, myId);//if there are more slaves then jobs, the unimployment slaves will be dismissed
 		}
 
 	} while (status.MPI_TAG == CONTINUATION_TAG);
@@ -214,8 +211,8 @@ int binaryClassificationAlgorithm(int N, int K, Points* points, double* weights,
 
 	//---------------------Two solutions to the algorithem, please see the README FILE----------------------------------------------
 
-	//Nmiss = checkAllPointsLimitTimesCuda(points, N, K, dev_Points, weights, a, LIMIT, localResults, dev_results, numOfBlocks, numOfThreadsPerBlock, myId);
-	Nmiss = checkAllPointsLimitTimesOMP(points, N, K, weights, a, LIMIT, localResults, myId);//Checking all points LIMIT times and return the last iteration Nmiss
+	Nmiss = checkAllPointsLimitTimesCuda(points, N, K, dev_points->coordinantes, dev_points->group, dev_weights, weights, a, LIMIT, localResults, dev_results, numOfBlocks, numOfThreadsPerBlock, myId);
+	//Nmiss = checkAllPointsLimitTimesOMP(points, N, K, weights, a, LIMIT, localResults, myId);//Checking all points LIMIT times and return the last iteration Nmiss
 
 	//-----------------------------------------------------------------------------------------------------------------------------------------
 	*q = checkQualityOfClassifier(Nmiss, N); //Calculate Ratio (Nmiss/N)

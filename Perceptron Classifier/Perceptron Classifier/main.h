@@ -1,7 +1,7 @@
 #pragma once
 
-#define INPUT_FILE_NAME "C:\\Users\\cudauser\\Desktop\\Prceptron - Cuda\\Prceptron - Cuda\\Input.txt"
-#define OUTPUT_FILE_NAME "C:\\Users\\cudauser\\Desktop\\Prceptron - Cuda\\Prceptron - Cuda\\Output.txt"
+#define INPUT_FILE_NAME "C:\\Users\\cudauser\\Desktop\\Perceptron-Classifier-master\\Perceptron Classifier\\Perceptron Classifier\\Input.txt"
+#define OUTPUT_FILE_NAME "C:\\Users\\cudauser\\Desktop\\Perceptron-Classifier-master\\Perceptron Classifier\\Perceptron Classifier\\Output.txt"
 #define MASTER 0
 #define WEIGHTS_TAG 2
 #define GLOBAL_SUCCESS_TAG 3
@@ -23,8 +23,8 @@ FILE* readParamsFromFile(const char* fileName, int* N, int* K, double* dt, doubl
 void broadcastParameters(int* N, int* K, double* dt, double* tmax, double* a, int* LIMIT, double* QC);
 void readPointsFromFile(const char* fileName, FILE* fp, Points* points, int* N, int* K, double* dt, double* tmax, double* a, int* LIMIT, double* QC, int myId);
 void broadcastPoints(Points* points, int N, int K);
-void masterHandleSlaves(int N, int K, double dt, double tmax, double a, int LIMIT, double QC, double t, double* weights, int numOfJobs, int numOfSlaves, int numOfWorkingProccesses, int numOfWorkingSlaves, clock_t c);
-void masterAlone(Points points, int N, int K, double dt, double tmax, double a, int LIMIT, double QC, double t, double* weights, int numOfJobs, int numOfSlaves, int numOfWorkingProccesses, int numOfWorkingSlaves, clock_t c, int myId);
+void masterHandleSlaves(int N, int K, double dt, double tmax, double a, int LIMIT, double QC, double t, double* weights, int numOfJobs, int numOfSlaves, int numOfWorkingProccesses, int numOfWorkingSlaves, double start);
+void masterAlone(Points points, int N, int K, double dt, double tmax, double a, int LIMIT, double QC, double t, double* weights, int numOfJobs, int numOfSlaves, int numOfWorkingProccesses, int numOfWorkingSlaves, double start, int myId);
 void slavesWork(Points points, int N, int K, double dt, double tmax, double a, int LIMIT, double QC, double t, double* weights, int numOfJobs, int numOfSlaves, int numOfWorkingProccesses, int numOfWorkingSlaves, int myId);
 int binaryClassificationAlgorithm(int N, int K, Points* points, double* weights, double a, int LIMIT, double t, double proc_dt, double* q, double QC, int* results, Points* dev_Points, double* dev_weights, int* dev_results, int myId);
 void fixWeights(int K, int sign, double* coords, double* weights, double a);
