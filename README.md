@@ -5,9 +5,26 @@ Implement a Simplified Binary Classification algorithm to find a Linear Classifi
 The result depends on the maximum iteration allowed, value of the chosen parameter a and the time value t.
 The purpose of the project is to define a minimal value of t that leads to the Classifier with acceptable value of Quality of Classifier.
 
-IN THIS PROJECT I HAVE TWO DIFFERENT SOLUTIONS
+IN THIS PROJECT I HAVE TWO DIFFERENT SOLUTIONS (uncomment the relevant line in the binaryClassificationAlgorithm function)
 
 # First Solution
+
+
+#MPI usage:
+
+The Master process will manage the Slave processes dynamically and will not participate in the slave's "dirty" work.
+Each Slave will calculate different time values with the appropriate time difference and will send to the master their results according to if q<QC.
+The Master will choose the minimal successful time value among all the times that were been calculated.
+If all the slaves failed, the master will tell them to continue to search in their next time interval.
+If only the master will be activated without other slaves, he will do all the work alone.
+The rational of choosing the specific architecture - 
+In case that the program will not find the correct solution in the first time interval, it will have the next time solution right away,
+depends on the number of processes which were activeted.
+The master will not participate in the perceptron algorithem in case there is large amount of slaves, he will have to always listen, 
+summerize, recieve and send - He needs to be the "quick manager".
+complexity evaluation - 
+(tmax/dt) / numOfSlaves)
+
 
 #Cuda Usage:
 
@@ -32,39 +49,35 @@ One iteration: O((N/numOfThreads)K)
 LIMIT iterations: O((N / numOfThreads) * K * LIMIT)
 
 
+Total Complexity: O( (O(k) + O((N / numOfThreads) * K * LIMIT)) * ((tmax/dt) / numOfSlaves) )
+
+
+# Second Solution
+
+
 #MPI usage:
-
-The Master process will manage the Slave processes dynamically and will not participate in the slave's "dirty" work.
-Each Slave will calculate different time values with the appropriate time difference and will send to the master their results according to if q<QC.
-The Master will choose the minimal successful time value among all the times that were been calculated.
-If all the slaves failed, the master will tell them to continue to search in their next time interval.
-If only the master will be activated without other slaves, he will do all the work alone.
-The rational of choosing the specific architecture - 
-In case that the program will not find the correct solution in the first time interval, it will have the next time solution right away,
-depends on the number of processes which were activeted.
-The master will not participate in the perceptron algorithem in case there is large amount of slaves, he will have to always listen, 
-summerize, recieve and send - He needs to be the "quick manager".
-complexity evaluation - 
-Worst case: O((O(k) + O((N / numOfThreads) * K * LIMIT) * (tmax/dt))
-
-
-# Second Solution (uncomment the relevant line in the binarySearch:
+(stay the same as the original solution)
 
 
 #Cuda Usage:
 
-1. Will calculate and set the new points coordinates according to the local time the slave is handle.
+Two useges:
+
+1. Same usage as the first solution.
 2. Inside the LIMIT loop - 
 Will check if each point is in the right position relative to the linear line and will put the results in an array. 
 will stop the loop if all the points are in the right place.
-
+complexity evaluation - 
+In this exrecise the max amount of input points are 500,000, and Invidia GPU have more then 500,000 threads. 
+Which means that Each Cuda thread can handle a single point, loop throgh its demensions - O(k) + O(k) in parallel - O(k) total.
 
 #OMP usage:
 
 Inside the LIMIT loop - 
 will count the number of points that are not in their dedicated position according to the result array that the Cuda has been calculated.
 In addition, will remember the minimum index of the point that was not in the right position. 
+complexity evaluation - 
+O(n/numOfThreads)
 
-#MPI usage:
 
-(stay the same as the original solution)
+Total Complexity: O( (O(k) + O((N / numOfThreads) * LIMIT)) * ((tmax/dt) / numOfSlaves) )
