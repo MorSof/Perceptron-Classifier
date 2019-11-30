@@ -23,7 +23,8 @@ depends on the number of processes which were activeted.
 The master will not participate in the perceptron algorithem in case there is large amount of slaves, he will have to always listen, 
 summerize, recieve and send - He needs to be the "quick manager".
 complexity evaluation - 
-(tmax/dt) / numOfSlaves)
+
+O((tmax/dt) / numOfSlaves))
 
 
 #Cuda Usage:
@@ -49,7 +50,7 @@ One iteration: O((N/numOfThreads)K)
 LIMIT iterations: O((N / numOfThreads) * K * LIMIT)
 
 
-Total Complexity: O( (O(k) + O((N / numOfThreads) * K * LIMIT)) * ((tmax/dt) / numOfSlaves) )
+Total Complexity: O( (O(k) + O((N / numOfThreads) * K * LIMIT)) * O((tmax/dt) / numOfSlaves) )
 
 
 # Second Solution
@@ -80,4 +81,4 @@ complexity evaluation -
 O(n/numOfThreads)
 
 
-Total Complexity: O( (O(k) + O((N / numOfThreads) * LIMIT)) * ((tmax/dt) / numOfSlaves) )
+Total Complexity: O( (O(k) + O((N / numOfThreads) * LIMIT)) * O((tmax/dt) / numOfSlaves) )
