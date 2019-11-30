@@ -16,7 +16,7 @@ Each Slave will calculate different time values with the appropriate time differ
 The Master will choose the minimal successful time value among all the times that were been calculated.
 If all the slaves failed, the master will tell them to continue to search in their next time interval.
 If only the master will be activated without other slaves, he will do all the work alone.
-what is a rational of choosing this specific architecture:
+what is a rational of choosing this specific architecture - 
 In case that the program will not find the correct solution in the first time interval, it will have the next time solution right away,
 depends on the number of processes which were activeted.
 The master will not participate in the perceptron algorithem in case there is large amount of slaves, he will have to always listen, 
@@ -30,14 +30,18 @@ what is a rational of choosing the specific architecture -
 The big advantage of Cuda is that it can handle massive amount of small tasks on parallel, 
 In this case, it handle massive amount of points which need to be relcataed - its a perfect match!
 complexity evaluation - 
-Each Cuda thread loop throgh single point demension - O(k) in parallel - O(k) total.
+In this exrecise the max amount of input points are 500,000, and Invidia GPU have more then 500,000 threads. 
+Which means that Each Cuda thread can handle a single point, loop throgh its demensions - O(k) in parallel - O(k) total.
 
 
 #OMP usage:
 
-Inside the LIMIT loop:
 Will check if each point is in the right position relative to the linear line and will stop the loop if all the points are in their right place.
-will count the number of points that are not in their dedicated position, and will remember the minimum index of the point that was not in the right position. 
+will count the number of points that are not in their dedicated position (Nmiss), and will remember the minimum index of the point that was not in the right position. 
+what is a rational of choosing this specific architecture - 
+OMP uses the computer cores to create threads. I used it here because it have the reduction action to sum all the Nmiss,
+and reduction to find the minimum index of a points that was not in the right position - all in a single parallel loop!
+complexity evaluation - 
 
 
 # Second Solution:
