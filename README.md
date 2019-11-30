@@ -27,7 +27,9 @@ will count the number of points that are not in their dedicated position (Nmiss)
 The rational of choosing the specific architecture - 
 OMP uses the computer cores to create threads. I used it here because it have the reduction action to sum all the Nmiss,
 and reduction to find the minimum index of a points that was not in the right position - all in a single parallel loop!
-complexity evaluation - O((N/numOfThreads)K)
+complexity evaluation - 
+One iteration: O((N/numOfThreads)K)
+LIMIT iterations: O((N / numOfThreads) * K * LIMIT)
 
 
 #MPI usage:
@@ -43,15 +45,10 @@ depends on the number of processes which were activeted.
 The master will not participate in the perceptron algorithem in case there is large amount of slaves, he will have to always listen, 
 summerize, recieve and send - He needs to be the "quick manager".
 complexity evaluation - 
-Worst case: O((O(k) + O((N/numOfThreads)K))(tmax/dt))
+Worst case: O((O(k) + O((N / numOfThreads) * K * LIMIT) * (tmax/dt))
 
 
-# Second Solution:
-
-
-#MPI usage:
-
-(stay the same as the original solution)
+# Second Solution (uncomment the relevant line in the binarySearch:
 
 
 #Cuda Usage:
@@ -67,3 +64,7 @@ will stop the loop if all the points are in the right place.
 Inside the LIMIT loop - 
 will count the number of points that are not in their dedicated position according to the result array that the Cuda has been calculated.
 In addition, will remember the minimum index of the point that was not in the right position. 
+
+#MPI usage:
+
+(stay the same as the original solution)
