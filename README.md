@@ -7,7 +7,7 @@ The purpose of the project is to define a minimal value of t that leads to the C
 
 IN THIS PROJECT I HAVE TWO DIFFERENT SOLUTIONS:
 
-####################First Solution############################
+# First Solution
 
 #MPI usage:
 
@@ -32,7 +32,7 @@ Will check if each point is in the right position relative to the linear line an
 will count the number of points that are not in their dedicated position, and will remember the minimum index of the point that was not in the right position. 
 
 
-#################Second Solution:######################
+# Second Solution:
 
 
 #MPI usage:
