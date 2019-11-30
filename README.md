@@ -5,7 +5,7 @@ Implement a Simplified Binary Classification algorithm to find a Linear Classifi
 The result depends on the maximum iteration allowed, value of the chosen parameter a and the time value t.
 The purpose of the project is to define a minimal value of t that leads to the Classifier with acceptable value of Quality of Classifier.
 
-IN THIS PROJECT I HAVE TWO DIFFERENT SOLUTIONS:
+IN THIS PROJECT I HAVE TWO DIFFERENT SOLUTIONS
 
 # First Solution
 
@@ -16,8 +16,11 @@ Each Slave will calculate different time values with the appropriate time differ
 The Master will choose the minimal successful time value among all the times that were been calculated.
 If all the slaves failed, the master will tell them to continue to search in their next time interval.
 If only the master will be activated without other slaves, he will do all the work alone.
-Why I chose this way:
-In case that the program will not find the correct solution in the first time interval, it will have the next time solution right away.
+what is a rational of choosing this specific architecture:
+In case that the program will not find the correct solution in the first time interval, it will have the next time solution right away,
+depends on the number of processes which were activeted.
+The master will not participate in the perceptron algorithem in case there is large amount of slaves, he will have to always listen, 
+summerize, recieve and send - He needs to be the "quick manager".
 
 
 #Cuda Usage:
