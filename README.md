@@ -1,4 +1,5 @@
 # Perceptron-Classifier
+Parallel machin learning algorithem.
 Given a set of N points in K-dimensional space.
 Each point X is marked as belonging to set A or B.
 Implement a Simplified Binary Classification algorithm to find a Linear Classifier.
