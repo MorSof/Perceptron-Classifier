@@ -21,14 +21,15 @@ int main(int argc, char *argv[])
 	MPI_Comm_rank(MPI_COMM_WORLD, &myId);
 	MPI_Comm_size(MPI_COMM_WORLD, &numOfProcess);
 	int numOfSlaves = numOfProcess - 1;
-
-	int N = 500000;
-	int K = 2;
-	double dt = 1;
-	double tmax = 10;
-	double a = 0.2;
-	int LIMIT = 200;
-	double QC = 0.1;
+	
+	//Parameters
+	int N;
+	int K;
+	double dt;
+	double tmax;
+	double a;
+	int LIMIT;
+	double QC;
 	double t = 0;
 	double* weights;
 	int numOfJobs, numOfWorkingProccesses, numOfWorkingSlaves;
@@ -280,6 +281,8 @@ FILE* readParamsFromFile(const char* fileName, int* N, int* K, double* dt, doubl
 	{
 		printf("Error reading the file! (fp=NULL)\n");
 		fflush(NULL);
+		MPI_Abort(MPI_COMM_WORLD, EXIT_FAILURE);
+		exit(EXIT_FAILURE);
 	}
 
 	fscanf(fp, "%d", N);
@@ -289,6 +292,14 @@ FILE* readParamsFromFile(const char* fileName, int* N, int* K, double* dt, doubl
 	fscanf(fp, "%lf", a);
 	fscanf(fp, "%d", LIMIT);
 	fscanf(fp, "%lf", QC);
+
+	if (N < 0 || K < 0 || dt < 0 || tmax < 0 || a < 0 || LIMIT < 0 || QC < 0)
+	{
+		printf("Invalid input parameters! \n");
+		fflush(NULL);
+		MPI_Abort(MPI_COMM_WORLD, EXIT_FAILURE);
+		exit(EXIT_FAILURE);
+	}
 
 	return fp;
 }
