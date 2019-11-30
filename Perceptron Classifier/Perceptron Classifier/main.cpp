@@ -381,8 +381,6 @@ void dismissUnemployedProcesses(int myCurrentJobIndex, int numOfJobs, int myId)
 {
 	if (myCurrentJobIndex >= numOfJobs)
 	{// will dismiss all the slaves that dont have a job
-		printf("myId %d exit the program\n", myId);
-		fflush(NULL);
 		MPI_Finalize();
 		exit(EXIT_SUCCESS);
 	}
